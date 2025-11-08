@@ -1,0 +1,258 @@
+'use client'
+import { useEffect, useState, useMemo } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import Header from '@/components/Header'
+import InicioCasamento from '@/components/InicioCasamento'
+
+export default function Dashboard() {
+    const [guests, setGuests] = useState<any[]>([])
+    const [filter, setFilter] = useState<'todos' | 'confirmados' | 'naoConfirmados'>('todos')
+
+    const params = useSearchParams()
+    const telefone = params.get('telefone') || ''
+
+    const ADMIN_PHONES =
+        process.env.NEXT_PUBLIC_ADMIN_PHONES?.split(',').map((p) => p.trim()) || []
+    const cleanPhone = telefone.replace(/\D/g, '')
+    const isAdmin = ADMIN_PHONES.includes(cleanPhone)
+
+    useEffect(() => {
+        if (telefone) fetchGuests()
+    }, [telefone])
+
+    async function fetchGuests() {
+        try {
+            const [resConvidados, resGrupos] = await Promise.all([
+                fetch(`/api/convidados?telefone=${telefone}`),
+                fetch('/api/grupos'),
+            ])
+
+            const convidados = await resConvidados.json()
+            const grupos = await resGrupos.json()
+
+            const convidadosComGrupo = (convidados || []).map((g: any) => {
+                const grupo = grupos.find((gr: any) => gr.id === g.grupo_id)
+                return { ...g, grupo_nome: grupo ? grupo.nome : 'Sem grupo' }
+            })
+
+            setGuests(convidadosComGrupo)
+        } catch (err) {
+            console.error('Erro ao buscar convidados:', err)
+            setGuests([])
+        }
+    }
+
+    async function toggleStatus(id: number, status: string) {
+        const novoStatus = status === 'Confirmado' ? 'Não confirmado' : 'Confirmado'
+
+        const res = await fetch('/api/convidados', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, status: novoStatus }),
+        })
+
+        if (!res.ok) {
+            alert('Falha ao confirmar presença. Tente novamente.')
+            return
+        }
+
+        setGuests((prev) =>
+            prev.map((g) => (g.id === id ? { ...g, status: novoStatus } : g))
+        )
+    }
+
+    const filteredGuests = useMemo(() => {
+        if (filter === 'confirmados')
+            return guests.filter((g) => g.status === 'Confirmado')
+        if (filter === 'naoConfirmados')
+            return guests.filter((g) => g.status !== 'Confirmado')
+        return guests
+    }, [guests, filter])
+
+    const groupedGuests = useMemo(() => {
+        const map = new Map<string, any[]>()
+        filteredGuests.forEach((g) => {
+            const grupoNome = g.grupo_nome || 'Sem grupo'
+            if (!map.has(grupoNome)) map.set(grupoNome, [])
+            map.get(grupoNome)!.push(g)
+        })
+        return Array.from(map.entries())
+    }, [filteredGuests])
+
+    const totalGrupos = groupedGuests.length
+    const totalPessoas = filteredGuests.length
+
+
+
+
+
+useEffect(() => {
+  if (telefone) fetchGuests()
+
+  const atualizarLista = () => fetchGuests()
+  window.addEventListener('atualizarConvidados', atualizarLista)
+
+  return () => {
+    window.removeEventListener('atualizarConvidados', atualizarLista)
+  }
+}, [telefone])
+
+
+
+
+
+    return (
+        <div className="relative min-h-screen text-[#0e1670] scroll-smooth overflow-hidden bg-gradient-to-br from-[#fdfdff] via-[#f6f8ff] to-[#eef1ff]">
+            <motion.div
+                className="absolute inset-0 bg-gradient-to-br from-[#0f155e] via-[#18226b] to-[#253080] opacity-[0.05] z-0"
+                animate={{
+                    backgroundPosition: ['0% 0%', '100% 100%', '0% 0%'],
+                }}
+                transition={{
+                    duration: 20,
+                    repeat: Infinity,
+                    ease: 'linear',
+                }}
+            />
+
+            <Header telefone={telefone ?? ''} />
+
+            <main className="relative z-10 flex flex-col items-center justify-center w-full">
+                <section className="w-full min-h-screen flex items-center justify-center overflow-visible">
+                    <InicioCasamento />
+                </section>
+
+                <section
+                    id="confirmacao"
+                    className="w-full min-h-screen flex flex-col items-center justify-center px-4 py-20 md:py-32"
+                >
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.7 }}
+                        className="text-center mb-10"
+                    >
+                        <h1
+                            className="text-3xl md:text-4xl font-light tracking-wide mb-2 text-[#0e1670]"
+                            style={{ fontFamily: 'Playfair Display, serif' }}
+                        >
+                            Lista de Presença
+                        </h1>
+                        <p
+                            className="text-[#0e1670]/70 text-sm md:text-base"
+                            style={{ fontFamily: 'Inter, sans-serif' }}
+                        >
+                            Confirme ou visualize seus convidados
+                        </p>
+                    </motion.div>
+
+                    {isAdmin && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 w-full max-w-3xl"
+                        >
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={() => setFilter('todos')}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'todos'
+                                            ? 'bg-[#0e1670] text-white'
+                                            : 'bg-white border border-[#0e1670]/30 text-[#0e1670]'
+                                        }`}
+                                >
+                                    Todos
+                                </button>
+                                <button
+                                    onClick={() => setFilter('confirmados')}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'confirmados'
+                                            ? 'bg-green-600 text-white'
+                                            : 'bg-white border border-green-600/30 text-green-700'
+                                        }`}
+                                >
+                                    Confirmados
+                                </button>
+                                <button
+                                    onClick={() => setFilter('naoConfirmados')}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'naoConfirmados'
+                                            ? 'bg-red-600 text-white'
+                                            : 'bg-white border border-red-600/30 text-red-700'
+                                        }`}
+                                >
+                                    Não Confirmados
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-[#0e1670]/80 font-medium">
+                                <p>
+                                    <span className="font-semibold">{totalGrupos}</span> grupos —{' '}
+                                    <span className="font-semibold">{totalPessoas}</span> pessoas
+                                </p>
+                            </div>
+                        </motion.div>
+                    )}
+
+                    <div className="w-full max-w-3xl max-h-[70vh] overflow-y-auto flex flex-col items-center">
+                        <AnimatePresence>
+                            {guests.length === 0 && (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="text-center text-[#0e1670]/70 mt-8"
+                                >
+                                    Nenhum convidado encontrado para este número.
+                                </motion.p>
+                            )}
+
+                            {groupedGuests.map(([grupo, lista]) => (
+                                <motion.div
+                                    key={grupo}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, y: -20 }}
+                                    className="w-full bg-white/80 backdrop-blur-md border border-[#b8c2ff]/40 
+                    shadow-sm rounded-2xl p-6 mb-6"
+                                >
+                                    <h2 className="text-lg font-semibold text-[#0e1670] mb-3">
+                                        {grupo}
+                                    </h2>
+
+                                    {lista.map((g: any) => (
+                                        <motion.div
+                                            key={g.id}
+                                            whileHover={{ scale: 1.01 }}
+                                            className="flex justify-between items-center bg-white/70 border border-[#b8c2ff]/30
+                        rounded-xl p-4 mb-3 hover:shadow-md transition-all"
+                                        >
+                                            <div>
+                                                <p className="text-base font-medium text-[#0e1670]">
+                                                    {g.nome}
+                                                </p>
+                                                <p className="text-sm text-[#0e1670]/70">{g.status}</p>
+                                            </div>
+
+                                            <motion.button
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.97 }}
+                                                onClick={() => toggleStatus(g.id, g.status)}
+                                                className={`px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-300 ${g.status === 'Confirmado'
+                                                        ? 'bg-gradient-to-r from-[#10196e] to-[#253080] text-white hover:shadow-lg'
+                                                        : 'bg-[#e8eaff] text-[#10196e] hover:bg-[#dfe3ff]'
+                                                    }`}
+                                            >
+                                                {g.status === 'Confirmado'
+                                                    ? 'Confirmado ✅'
+                                                    : 'Confirmar'}
+                                            </motion.button>
+                                        </motion.div>
+                                    ))}
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </section>
+            </main>
+        </div>
+    )
+}

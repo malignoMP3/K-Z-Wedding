@@ -145,6 +145,8 @@ export default function ModalGrupos({
             setGrupoSelecionado(null)
         }
         await fetchGrupos()
+
+        window.dispatchEvent(new Event('atualizarConvidados'))
     }
 
     async function criarConvidado() {
@@ -168,6 +170,7 @@ export default function ModalGrupos({
             await fetchConvidados(grupoSelecionado)
             setNovoConvidado('')
         }
+        window.dispatchEvent(new Event('atualizarConvidados'))
 
         setLoading(false)
     }
@@ -190,6 +193,8 @@ export default function ModalGrupos({
         if (!confirm('Deseja excluir este convidado?')) return
         await fetch(`/api/convidados?id=${id}`, { method: 'DELETE' })
         if (grupoSelecionado) await fetchConvidados(grupoSelecionado)
+
+        window.dispatchEvent(new Event('atualizarConvidados'))
     }
 
     const gruposFiltrados = useMemo(() => {
@@ -536,8 +541,8 @@ export default function ModalGrupos({
                                                         fetchConvidados(g.id)
                                                     }}
                                                     className={`px-5 py-3 text-sm cursor-pointer transition-all ${grupoSelecionado === g.id
-                                                            ? 'bg-[#1c2b3a]/90 text-white'
-                                                            : 'hover:bg-[#1c2b3a]/10 text-[#1c2b3a]'
+                                                        ? 'bg-[#1c2b3a]/90 text-white'
+                                                        : 'hover:bg-[#1c2b3a]/10 text-[#1c2b3a]'
                                                         }`}
                                                 >
                                                     {g.nome} — {g.telefone}
