@@ -4,10 +4,12 @@ import { useSearchParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import Header from '@/components/Header'
 import InicioCasamento from '@/components/InicioCasamento'
+import ChacaraSection from '@/components/ChacaraSection'
 
 export default function Dashboard() {
     const [guests, setGuests] = useState<any[]>([])
-    const [filter, setFilter] = useState<'todos' | 'confirmados' | 'naoConfirmados'>('todos')
+    const [filter, setFilter] = useState<'todos' | 'confirmados' | 'aguardando' | 'naoVao'>('todos')
+
 
     const params = useSearchParams()
     const telefone = params.get('telefone') || ''
@@ -44,7 +46,11 @@ export default function Dashboard() {
     }
 
     async function toggleStatus(id: number, status: string) {
-        const novoStatus = status === 'Confirmado' ? 'Não confirmado' : 'Confirmado'
+        let novoStatus = 'Aguardando resposta'
+
+        if (status === 'Aguardando resposta') novoStatus = 'Confirmado'
+        else if (status === 'Confirmado') novoStatus = 'Não vou'
+        else if (status === 'Não vou') novoStatus = 'Aguardando resposta'
 
         const res = await fetch('/api/convidados', {
             method: 'PUT',
@@ -53,7 +59,7 @@ export default function Dashboard() {
         })
 
         if (!res.ok) {
-            alert('Falha ao confirmar presença. Tente novamente.')
+            alert('Falha ao atualizar presença.')
             return
         }
 
@@ -62,13 +68,18 @@ export default function Dashboard() {
         )
     }
 
+
+
     const filteredGuests = useMemo(() => {
         if (filter === 'confirmados')
             return guests.filter((g) => g.status === 'Confirmado')
-        if (filter === 'naoConfirmados')
-            return guests.filter((g) => g.status !== 'Confirmado')
+        if (filter === 'aguardando')
+            return guests.filter((g) => g.status === 'Aguardando resposta')
+        if (filter === 'naoVao')
+            return guests.filter((g) => g.status === 'Não vou')
         return guests
     }, [guests, filter])
+
 
     const groupedGuests = useMemo(() => {
         const map = new Map<string, any[]>()
@@ -87,16 +98,16 @@ export default function Dashboard() {
 
 
 
-useEffect(() => {
-  if (telefone) fetchGuests()
+    useEffect(() => {
+        if (telefone) fetchGuests()
 
-  const atualizarLista = () => fetchGuests()
-  window.addEventListener('atualizarConvidados', atualizarLista)
+        const atualizarLista = () => fetchGuests()
+        window.addEventListener('atualizarConvidados', atualizarLista)
 
-  return () => {
-    window.removeEventListener('atualizarConvidados', atualizarLista)
-  }
-}, [telefone])
+        return () => {
+            window.removeEventListener('atualizarConvidados', atualizarLista)
+        }
+    }, [telefone])
 
 
 
@@ -122,6 +133,12 @@ useEffect(() => {
                 <section className="w-full min-h-screen flex items-center justify-center overflow-visible">
                     <InicioCasamento />
                 </section>
+
+
+
+                <ChacaraSection />
+
+
 
                 <section
                     id="confirmacao"
@@ -153,7 +170,7 @@ useEffect(() => {
                             animate={{ opacity: 1, y: 0 }}
                             className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 w-full max-w-3xl"
                         >
-                            <div className="flex gap-3">
+                            <div className="flex gap-3 flex-wrap justify-center">
                                 <button
                                     onClick={() => setFilter('todos')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'todos'
@@ -163,25 +180,38 @@ useEffect(() => {
                                 >
                                     Todos
                                 </button>
+
                                 <button
                                     onClick={() => setFilter('confirmados')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'confirmados'
-                                            ? 'bg-green-600 text-white'
-                                            : 'bg-white border border-green-600/30 text-green-700'
+                                            ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white'
+                                            : 'bg-white border border-green-500/40 text-green-700'
                                         }`}
                                 >
                                     Confirmados
                                 </button>
+
                                 <button
-                                    onClick={() => setFilter('naoConfirmados')}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'naoConfirmados'
-                                            ? 'bg-red-600 text-white'
-                                            : 'bg-white border border-red-600/30 text-red-700'
+                                    onClick={() => setFilter('aguardando')}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'aguardando'
+                                            ? 'bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-[#1c2b3a]'
+                                            : 'bg-white border border-yellow-400/40 text-yellow-600'
                                         }`}
                                 >
-                                    Não Confirmados
+                                    Aguardando resposta
+                                </button>
+
+                                <button
+                                    onClick={() => setFilter('naoVao')}
+                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'naoVao'
+                                            ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white'
+                                            : 'bg-white border border-red-500/40 text-red-700'
+                                        }`}
+                                >
+                                    Não vão
                                 </button>
                             </div>
+
 
                             <div className="text-sm text-[#0e1670]/80 font-medium">
                                 <p>
@@ -212,23 +242,24 @@ useEffect(() => {
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -20 }}
                                     className="w-full bg-white/80 backdrop-blur-md border border-[#b8c2ff]/40 
-                    shadow-sm rounded-2xl p-6 mb-6"
+      shadow-sm rounded-2xl p-6 mb-6"
                                 >
-                                    <h2 className="text-lg font-semibold text-[#0e1670] mb-3">
-                                        {grupo}
-                                    </h2>
+                                    {/* 👇 Só exibe o nome do grupo se for admin */}
+                                    {isAdmin && (
+                                        <h2 className="text-lg font-semibold text-[#0e1670] mb-3">
+                                            {grupo}
+                                        </h2>
+                                    )}
 
                                     {lista.map((g: any) => (
                                         <motion.div
                                             key={g.id}
                                             whileHover={{ scale: 1.01 }}
                                             className="flex justify-between items-center bg-white/70 border border-[#b8c2ff]/30
-                        rounded-xl p-4 mb-3 hover:shadow-md transition-all"
+          rounded-xl p-4 mb-3 hover:shadow-md transition-all"
                                         >
                                             <div>
-                                                <p className="text-base font-medium text-[#0e1670]">
-                                                    {g.nome}
-                                                </p>
+                                                <p className="text-base font-medium text-[#0e1670]">{g.nome}</p>
                                                 <p className="text-sm text-[#0e1670]/70">{g.status}</p>
                                             </div>
 
@@ -236,19 +267,22 @@ useEffect(() => {
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.97 }}
                                                 onClick={() => toggleStatus(g.id, g.status)}
-                                                className={`px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-300 ${g.status === 'Confirmado'
-                                                        ? 'bg-gradient-to-r from-[#10196e] to-[#253080] text-white hover:shadow-lg'
-                                                        : 'bg-[#e8eaff] text-[#10196e] hover:bg-[#dfe3ff]'
+                                                className={`px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-300
+    ${g.status === 'Confirmado'
+                                                        ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white hover:brightness-110'
+                                                        : g.status === 'Não vou'
+                                                            ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white hover:brightness-110'
+                                                            : 'bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-[#1c2b3a] hover:brightness-110'
                                                     }`}
                                             >
-                                                {g.status === 'Confirmado'
-                                                    ? 'Confirmado ✅'
-                                                    : 'Confirmar'}
+                                                {g.status}
                                             </motion.button>
+
                                         </motion.div>
                                     ))}
                                 </motion.div>
                             ))}
+
                         </AnimatePresence>
                     </div>
                 </section>

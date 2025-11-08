@@ -56,12 +56,18 @@ export default function ModalGrupos({
         setConvidados(data || [])
     }
 
-    async function toggleStatus(id: number, newStatus: string) {
+    async function toggleStatus(id: number, currentStatus: string) {
+        let newStatus = 'Aguardando resposta'
+
+        if (currentStatus === 'Aguardando resposta') newStatus = 'Confirmado'
+        else if (currentStatus === 'Confirmado') newStatus = 'Não vou'
+        else if (currentStatus === 'Não vou') newStatus = 'Aguardando resposta'
+
         try {
             const res = await fetch('/api/convidados', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id, status: newStatus })
+                body: JSON.stringify({ id, status: newStatus }),
             })
             if (res.ok) {
                 const updated = convidados.map((c) =>
@@ -73,6 +79,7 @@ export default function ModalGrupos({
             console.error('Erro ao atualizar status:', err)
         }
     }
+
 
     const handleTelefoneChange = (value: string) => {
         const digits = value.replace(/\D/g, '').slice(0, 11)
@@ -625,24 +632,19 @@ export default function ModalGrupos({
                                                     <motion.button
                                                         whileHover={{ scale: 1.05 }}
                                                         whileTap={{ scale: 0.95 }}
-                                                        onClick={() =>
-                                                            toggleStatus(
-                                                                c.id!,
-                                                                c.status === 'Confirmado'
-                                                                    ? 'Não confirmado'
-                                                                    : 'Confirmado'
-                                                            )
-                                                        }
-                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium shadow cursor-pointer
-                                transition-all duration-200 ${c.status === 'Confirmado'
-                                                                ? 'bg-green-600 text-white hover:bg-green-700'
-                                                                : 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                                                        onClick={() => toggleStatus(c.id!, c.status || 'Aguardando resposta')}
+                                                        className={`px-3 py-1.5 rounded-full text-xs font-medium shadow cursor-pointer transition-all duration-200
+                                                            ${c.status === 'Confirmado'
+                                                                ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white hover:brightness-110'
+                                                                : c.status === 'Não vou'
+                                                                    ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white hover:brightness-110'
+                                                                    : 'bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-[#1c2b3a] hover:brightness-110'
                                                             }`}
                                                     >
-                                                        {c.status === 'Confirmado'
-                                                            ? 'Confirmado'
-                                                            : 'Pendente'}
+                                                        {c.status || 'Aguardando resposta'}
                                                     </motion.button>
+
+
                                                 </div>
                                             </div>
                                         ))}

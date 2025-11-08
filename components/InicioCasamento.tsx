@@ -56,7 +56,7 @@ export default function InicioCasamento() {
                     transition={{ duration: 1 }}
                     className="text-5xl md:text-6xl lg:text-7xl font-semibold mb-6 bg-gradient-to-r from-[#1b1f8a] via-[#4b57c0] to-[#7c89ff] bg-clip-text text-transparent leading-tight drop-shadow-sm"
                 >
-                    {isMarried ? 'Marido e Esposa 💍' : 'Kaian & Zay'}
+                    {isMarried ? 'Kaian Cipriano & Zainy Sandres' : 'Kaian & Zay'}
                 </motion.h1>
 
                 <motion.p
@@ -108,46 +108,60 @@ export default function InicioCasamento() {
                             transition: { staggerChildren: 0.2, delayChildren: 0.2 },
                         },
                     }}
-                    className="flex flex-col sm:flex-row items-center justify-center gap-5 mb-8 w-full"
+                    className="flex flex-col sm:flex-row items-center justify-center gap-6 mb-8 w-full"
                 >
+                    {/* Confirmar Presença */}
                     <motion.button
                         variants={{
                             hidden: { opacity: 0, y: 30 },
                             visible: { opacity: 1, y: 0 },
                         }}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.96 }}
                         onClick={scrollToConfirmacao}
-                        className="flex items-center justify-center gap-3 
-                       px-8 md:px-10 py-3 md:py-4 rounded-full 
-                       bg-gradient-to-r from-[#10196e] via-[#1a2090] to-[#3d49ff]
-                       text-white font-semibold text-base md:text-lg shadow-lg hover:shadow-xl
-                       hover:brightness-110 transition-all duration-300"
+                        className="
+      flex items-center justify-center gap-2 px-8 md:px-10 py-3 md:py-4 rounded-full
+      text-[#10196e] font-semibold text-base md:text-lg
+      bg-[#f3f5fa] 
+      shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_6px_6px_12px_rgba(0,0,0,0.15)]
+      transition-all duration-300 ease-out
+      hover:shadow-[-2px_-2px_5px_rgba(255,255,255,0.6),_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9),inset_2px_2px_6px_rgba(0,0,0,0.25)]
+      hover:text-[#4b57c0]
+      active:scale-95
+    "
                     >
                         <Users className="w-5 h-5 md:w-6 md:h-6" />
                         Confirmar Presença
                     </motion.button>
 
-                    <motion.a
+                    {/* Ver Local */}
+                    <motion.button
                         variants={{
                             hidden: { opacity: 0, y: 30 },
                             visible: { opacity: 1, y: 0 },
                         }}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.03 }}
                         whileTap={{ scale: 0.96 }}
-                        href="https://www.google.com/maps/place/Hortol%C3%A2ndia,+SP"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-3 
-                       px-8 md:px-10 py-3 md:py-4 rounded-full 
-                       bg-white border-2 border-[#10196e] text-[#10196e] font-semibold text-base md:text-lg
-                       hover:bg-gradient-to-r hover:from-[#10196e] hover:to-[#253080]
-                       hover:text-white shadow-md transition-all duration-300"
+                        onClick={() => {
+                            const section = document.querySelector('#chacara')
+                            if (section) section.scrollIntoView({ behavior: 'smooth' })
+                        }}
+                        className="
+      flex items-center justify-center gap-2 px-8 md:px-10 py-3 md:py-4 rounded-full
+      text-[#10196e] font-semibold text-base md:text-lg
+      bg-[#f3f5fa]
+      shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_6px_6px_12px_rgba(0,0,0,0.15)]
+      transition-all duration-300 ease-out
+      hover:shadow-[-2px_-2px_5px_rgba(255,255,255,0.6),_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9),inset_2px_2px_6px_rgba(0,0,0,0.25)]
+      hover:text-[#4b57c0]
+      active:scale-95
+    "
                     >
                         <MapPin className="w-5 h-5 md:w-6 md:h-6" />
-                        Como Chegar
-                    </motion.a>
+                        Ver Local
+                    </motion.button>
                 </motion.div>
+
 
                 <motion.div
                     initial={{ opacity: 0 }}
@@ -175,5 +189,12 @@ export default function InicioCasamento() {
                 </motion.div>
             </div>
         </section>
+
+
+
+
+
     )
+
+
 }
