@@ -8,7 +8,8 @@ import ChacaraSection from '@/components/ChacaraSection'
 
 export default function Dashboard() {
     const [guests, setGuests] = useState<any[]>([])
-    const [filter, setFilter] = useState<'todos' | 'confirmados' | 'aguardando' | 'naoVao'>('todos')
+    const [filter, setFilter] = useState<'todos' | 'confirmados' | 'naoVao'>('todos')
+
 
 
     const params = useSearchParams()
@@ -45,17 +46,19 @@ export default function Dashboard() {
         }
     }
 
-    async function toggleStatus(id: number, status: string) {
-        let novoStatus = 'Aguardando resposta'
 
-        if (status === 'Aguardando resposta') novoStatus = 'Confirmado'
-        else if (status === 'Confirmado') novoStatus = 'Não vou'
-        else if (status === 'Não vou') novoStatus = 'Aguardando resposta'
+    async function setStatus(id: number, newStatus: 'Confirmado' | 'Não vou') {
+        const convidado = guests.find((g) => g.id === id)
+        const current = convidado?.status
+
+        // regra de toggle → se clicar no que já está ativo, vira Pendente
+        const finalStatus =
+            current === newStatus ? 'Pendente' : newStatus
 
         const res = await fetch('/api/convidados', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id, status: novoStatus }),
+            body: JSON.stringify({ id, status: finalStatus }),
         })
 
         if (!res.ok) {
@@ -64,7 +67,9 @@ export default function Dashboard() {
         }
 
         setGuests((prev) =>
-            prev.map((g) => (g.id === id ? { ...g, status: novoStatus } : g))
+            prev.map((g) =>
+                g.id === id ? { ...g, status: finalStatus } : g
+            )
         )
     }
 
@@ -73,12 +78,11 @@ export default function Dashboard() {
     const filteredGuests = useMemo(() => {
         if (filter === 'confirmados')
             return guests.filter((g) => g.status === 'Confirmado')
-        if (filter === 'aguardando')
-            return guests.filter((g) => g.status === 'Aguardando resposta')
         if (filter === 'naoVao')
             return guests.filter((g) => g.status === 'Não vou')
         return guests
     }, [guests, filter])
+
 
 
     const groupedGuests = useMemo(() => {
@@ -174,8 +178,8 @@ export default function Dashboard() {
                                 <button
                                     onClick={() => setFilter('todos')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'todos'
-                                            ? 'bg-[#0e1670] text-white'
-                                            : 'bg-white border border-[#0e1670]/30 text-[#0e1670]'
+                                        ? 'bg-[#0e1670] text-white'
+                                        : 'bg-white border border-[#0e1670]/30 text-[#0e1670]'
                                         }`}
                                 >
                                     Todos
@@ -184,28 +188,20 @@ export default function Dashboard() {
                                 <button
                                     onClick={() => setFilter('confirmados')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'confirmados'
-                                            ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white'
-                                            : 'bg-white border border-green-500/40 text-green-700'
+                                        ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white'
+                                        : 'bg-white border border-green-500/40 text-green-700'
                                         }`}
                                 >
                                     Confirmados
                                 </button>
 
-                                <button
-                                    onClick={() => setFilter('aguardando')}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'aguardando'
-                                            ? 'bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-[#1c2b3a]'
-                                            : 'bg-white border border-yellow-400/40 text-yellow-600'
-                                        }`}
-                                >
-                                    Aguardando resposta
-                                </button>
+
 
                                 <button
                                     onClick={() => setFilter('naoVao')}
                                     className={`px-4 py-2 rounded-xl text-sm font-medium transition ${filter === 'naoVao'
-                                            ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white'
-                                            : 'bg-white border border-red-500/40 text-red-700'
+                                        ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white'
+                                        : 'bg-white border border-red-500/40 text-red-700'
                                         }`}
                                 >
                                     Não vão
@@ -255,30 +251,58 @@ export default function Dashboard() {
                                         <motion.div
                                             key={g.id}
                                             whileHover={{ scale: 1.01 }}
-                                            className="flex justify-between items-center bg-white/70 border border-[#b8c2ff]/30
-          rounded-xl p-4 mb-3 hover:shadow-md transition-all"
+                                            className="flex flex-col sm:flex-row sm:justify-between sm:items-center 
+        bg-white/70 border border-[#b8c2ff]/30 rounded-xl p-3 mb-3 hover:shadow-md transition-all"
                                         >
-                                            <div>
-                                                <p className="text-base font-medium text-[#0e1670]">{g.nome}</p>
-                                                <p className="text-sm text-[#0e1670]/70">{g.status}</p>
+
+                                            {/* Nome — Status */}
+                                            <div className="mb-2 sm:mb-0">
+                                                <p className="text-base font-medium text-[#0e1670]">
+                                                    {g.nome}
+                                                    <span className="text-sm text-[#0e1670]/60">
+                                                        — {g.status || 'Pendente'}
+                                                    </span>
+                                                </p>
                                             </div>
 
-                                            <motion.button
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.97 }}
-                                                onClick={() => toggleStatus(g.id, g.status)}
-                                                className={`px-4 py-2 rounded-xl text-sm font-medium shadow-md transition-all duration-300
-    ${g.status === 'Confirmado'
-                                                        ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white hover:brightness-110'
-                                                        : g.status === 'Não vou'
-                                                            ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white hover:brightness-110'
-                                                            : 'bg-gradient-to-r from-[#f59e0b] to-[#fbbf24] text-[#1c2b3a] hover:brightness-110'
-                                                    }`}
-                                            >
-                                                {g.status}
-                                            </motion.button>
+                                            {/* Botões */}
+                                            <div className="flex gap-2 w-full sm:w-auto justify-between sm:justify-end">
+
+                                                {/* Botão Confirmar */}
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.97 }}
+                                                    onClick={() => setStatus(g.id, 'Confirmado')}
+                                                    className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium shadow-md transition-all
+                                                     ${g.status === 'Confirmado'
+                                                            ? 'bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white'
+                                                            : 'bg-white border border-green-500/40 text-green-700'
+                                                        }
+        `}
+                                                >
+                                                    Confirmar
+                                                </motion.button>
+
+                                                {/* Botão Não vou */}
+                                                <motion.button
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.97 }}
+                                                    onClick={() => setStatus(g.id, 'Não vou')}
+                                                    className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium shadow-md transition-all
+            ${g.status === 'Não vou'
+                                                            ? 'bg-gradient-to-r from-[#dc2626] to-[#ef4444] text-white'
+                                                            : 'bg-white border border-red-500/40 text-red-700'
+                                                        }
+        `}
+                                                >
+                                                    Não vou
+                                                </motion.button>
+
+                                            </div>
+
 
                                         </motion.div>
+
                                     ))}
                                 </motion.div>
                             ))}
