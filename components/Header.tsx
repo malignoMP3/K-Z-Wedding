@@ -4,6 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
 import { Users, LogOut } from 'lucide-react'
 import ModalGrupos from '@/components/ModalGrupos'
+import Image from 'next/image'
+
+
 
 interface HeaderProps {
   telefone?: string
@@ -45,15 +48,26 @@ export default function Header({ telefone }: HeaderProps) {
       transition={{ duration: 0.6 }}
       className="fixed top-0 left-0 w-full z-50 backdrop-blur-xl bg-white/70 border-b border-white/30 shadow-[0_2px_20px_rgba(0,0,0,0.05)]"
     >
-      <div className="max-w-6xl mx-auto px-6 sm:px-10 flex justify-between items-center h-16">
+      <div className="max-w-6xl mx-auto px-6 sm:px-10 flex justify-between items-center py-3 min-h-[80px]">
+
         <motion.div
           whileHover={{ scale: 1.05 }}
           transition={{ type: 'spring', stiffness: 200 }}
-          className="text-2xl font-light tracking-[0.15em] text-[#1c2b3a] cursor-pointer"
+          className="cursor-pointer flex items-center"
           onClick={scrollToStart}
         >
-          K & Z
+          <Image
+            src="/images/logo_casamento_3.png"
+            alt="Logo K & Z"
+            width={42}
+            height={42}
+            className="object-contain"
+            priority
+          />
+
+
         </motion.div>
+
 
         <nav className="hidden md:flex gap-10 text-[#1c2b3a]/80 font-medium text-sm items-center">
           <motion.span
@@ -185,6 +199,10 @@ export default function Header({ telefone }: HeaderProps) {
           </motion.nav>
         )}
       </AnimatePresence>
+
     </motion.header>
+
+
+
   )
 }

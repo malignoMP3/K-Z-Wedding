@@ -161,11 +161,12 @@ export default function Dashboard() {
                             Lista de Presença
                         </h1>
                         <p
-                            className="text-[#0e1670]/70 text-sm md:text-base"
+                            className="text-red-600 text-sm md:text-base"
                             style={{ fontFamily: 'Inter, sans-serif' }}
                         >
-                            Confirme ou visualize seus convidados
+                            Será permitida a entrada na cerimônia apenas à convidados que estiverem nesta lista, mediante a apresentação de documento.
                         </p>
+
                     </motion.div>
 
                     {isAdmin && (

@@ -3,8 +3,12 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { MapPin, Users } from 'lucide-react'
 import { FaInstagram } from 'react-icons/fa'
+import ListaPresentes from '@/components/ListaPresentes'
+
 
 export default function InicioCasamento() {
+    const [listaPresentesOpen, setListaPresentesOpen] = useState(false)
+
     const [timeLeft, setTimeLeft] = useState({
         days: '00',
         hours: '00',
@@ -48,6 +52,24 @@ export default function InicioCasamento() {
             id="inicio"
             className="w-full min-h-screen flex flex-col items-center justify-center text-center px-6 pt-36 md:pt-44 relative overflow-hidden"
         >
+
+            {/* BACKGROUND */}
+            <div
+                className="
+    absolute inset-0
+    bg-[url('/images/background_2.jpg')]
+    bg-cover bg-top
+    bg-no-repeat
+    opacity-50
+  "
+            />
+
+
+            {/* OVERLAY CLARO (bem mais leve) */}
+            <div className="absolute inset-0 bg-[#f8f7f4]/50" />
+
+
+
             <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-2xl px-4">
 
                 <motion.h1
@@ -56,7 +78,7 @@ export default function InicioCasamento() {
                     transition={{ duration: 1 }}
                     className="text-5xl md:text-6xl lg:text-7xl font-semibold mb-6 bg-gradient-to-r from-[#1b1f8a] via-[#4b57c0] to-[#7c89ff] bg-clip-text text-transparent leading-tight drop-shadow-sm"
                 >
-                    {isMarried ? 'Kaian Cipriano & Zainy Sandres' : 'Kaian & Zay'}
+                    {isMarried ? 'Kaian Cipriano & Zainy Sandres' : 'Zainy & Kaian'}
                 </motion.h1>
 
                 <motion.p
@@ -160,7 +182,40 @@ export default function InicioCasamento() {
                         <MapPin className="w-5 h-5 md:w-6 md:h-6" />
                         Ver Local
                     </motion.button>
+
+
+
+                    {/* Lista de Presentes */}
+                    <motion.button
+                        variants={{
+                            hidden: { opacity: 0, y: 30 },
+                            visible: { opacity: 1, y: 0 },
+                        }}
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => setListaPresentesOpen(true)}
+                        className="
+    flex items-center justify-center gap-2
+    px-8 md:px-10 py-3 md:py-4 rounded-full
+    text-[#10196e] font-semibold text-base md:text-lg
+    bg-[#f3f5fa]
+    shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_6px_6px_12px_rgba(0,0,0,0.15)]
+    transition-all duration-300 ease-out
+    hover:shadow-[-2px_-2px_5px_rgba(255,255,255,0.6),_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9),inset_2px_2px_6px_rgba(0,0,0,0.25)]
+    hover:text-[#4b57c0]
+    active:scale-95
+  "
+                    >
+                        Lista de Presentes
+                    </motion.button>
+
+
+
+
                 </motion.div>
+
+
+
 
 
                 <motion.div
@@ -188,6 +243,14 @@ export default function InicioCasamento() {
                     ))}
                 </motion.div>
             </div>
+
+            <ListaPresentes
+                isOpen={listaPresentesOpen}
+                onClose={() => setListaPresentesOpen(false)}
+            />
+
+
+
         </section>
 
 
