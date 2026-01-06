@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { MapPin, Users } from 'lucide-react'
+import { MapPin, Users, Gift  } from 'lucide-react'
 import { FaInstagram } from 'react-icons/fa'
 import ListaPresentes from '@/components/ListaPresentes'
 
@@ -186,28 +186,32 @@ export default function InicioCasamento() {
 
 
                     {/* Lista de Presentes */}
-                    <motion.button
-                        variants={{
-                            hidden: { opacity: 0, y: 30 },
-                            visible: { opacity: 1, y: 0 },
-                        }}
-                        whileHover={{ scale: 1.03 }}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={() => setListaPresentesOpen(true)}
-                        className="
+<motion.button
+  variants={{
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0 },
+  }}
+  whileHover={{ scale: 1.03 }}
+  whileTap={{ scale: 0.96 }}
+  onClick={() => setListaPresentesOpen(true)}
+  className="
     flex items-center justify-center gap-2
     px-8 md:px-10 py-3 md:py-4 rounded-full
     text-[#10196e] font-semibold text-base md:text-lg
     bg-[#f3f5fa]
     shadow-[-6px_-6px_12px_rgba(255,255,255,0.8),_6px_6px_12px_rgba(0,0,0,0.15)]
     transition-all duration-300 ease-out
-    hover:shadow-[-2px_-2px_5px_rgba(255,255,255,0.6),_2px_2px_5px_rgba(0,0,0,0.2),inset_-2px_-2px_6px_rgba(255,255,255,0.9),inset_2px_2px_6px_rgba(0,0,0,0.25)]
+    hover:shadow-[-2px_-2px_5px_rgba(255,255,255,0.6),_2px_2px_5px_rgba(0,0,0,0.2),
+                 inset_-2px_-2px_6px_rgba(255,255,255,0.9),
+                 inset_2px_2px_6px_rgba(0,0,0,0.25)]
     hover:text-[#4b57c0]
     active:scale-95
   "
-                    >
-                        Lista de Presentes
-                    </motion.button>
+>
+  <Gift className="w-5 h-5 md:w-6 md:h-6" />
+  Lista de Presentes
+</motion.button>
+
 
 
 
