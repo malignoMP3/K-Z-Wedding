@@ -80,7 +80,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                                     'Mixer',
                                     'Air Fryer',
                                     'Chaleira elétrica',
-                                    'Panela elétrica',
                                     'Cafeteira',
                                     'Ferro de passar',
                                     'Micro-ondas',
