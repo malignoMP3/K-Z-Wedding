@@ -78,7 +78,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                                 {[
                                     'Aspirador de pó',
                                     'Mixer',
-                                    'Air Fryer',
                                     'Chaleira elétrica',
                                     'Cafeteira',
                                     'Ferro de passar',
