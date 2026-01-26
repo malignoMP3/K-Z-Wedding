@@ -77,7 +77,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                             <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm sm:text-base text-[#1c2b3a]/80">
                                 {[
                                     'Aspirador de pó',
-                                    'Mixer',
                                     'Chaleira elétrica',
                                     'Cafeteira',
                                     'Ferro de passar',
