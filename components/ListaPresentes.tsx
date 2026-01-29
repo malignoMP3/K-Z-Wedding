@@ -80,7 +80,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                                     'Chaleira elétrica',
                                     'Cafeteira',
                                     'Ferro de passar',
-                                    'Micro-ondas',
                                     'Conjunto de jantar',
                                     'Jogo de pratos',
                                     'Conjunto de panelas antiaderentes',
@@ -107,8 +106,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                                     'Cesto de roupas (100L/120L)',
                                     'Abajur para quarto',
                                     'Abajur de chão',
-                                    'Aparador de sala',
-                                    'Televisão',
                                     'Jogo de ferramentas (maleta)',
                                     'Lava-louças',
                                 ].map((item, index) => (
