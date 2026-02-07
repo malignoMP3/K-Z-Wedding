@@ -81,7 +81,6 @@ export default function ListaPresentes({ isOpen, onClose }: ListaPresentesProps)
                                     'Cafeteira',
                                     'Ferro de passar',
                                     'Conjunto de jantar',
-                                    'Jogo de pratos',
                                     'Conjunto de panelas antiaderentes',
                                     'Panela de pressão',
                                     'Criado-mudo',
